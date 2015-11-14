@@ -24,7 +24,7 @@ end
 
 class VendingMachine
 
-  attr_accessor :total_money
+  attr_reader :total_money
   attr_reader :all_stocks
 
   AVAILABLE_MONEY = [10, 50, 100, 500, 1000]
