@@ -20,32 +20,48 @@ class Drink
     @stocks = stocks
   end
 
+  def be_in_stock?
+    @stocks >= 0
+  end
+
+  def reduce_stock
+    @stocks -= 1
+  end
+
 end
 
 class VendingMachine
 
   attr_reader :total_money
   attr_reader :all_stocks
+  attr_reader :sales #売上
 
+  # 使用できるお金
   AVAILABLE_MONEY = [10, 50, 100, 500, 1000]
 
   def initialize
     @total_money = 0
     @all_stocks = [
-      Drink.new('コーラ', 120, 5)
+      Drink.new('コーラ', 120, 5),
+      Drink.new('レッドブル', 200, 5),
+      Drink.new('水', 100, 5)
     ]
+    @sales = 0
   end
 
+  # 全在庫リスト
   def all_stocks
     @all_stocks.each do |stock|
       puts "名前: #{stock.name} 値段: #{stock.costs} 在庫: #{stock.stocks}"
     end
   end
 
+  # 投入額
   def total_money
     puts "投入金額合計 #{@total_money} 円"
   end
 
+  # お金投入
   def insert_money(money)
     begin
       raise StandardError unless AVAILABLE_MONEY.include?(money.value)
@@ -58,20 +74,48 @@ class VendingMachine
     end
   end
 
+  # 釣り銭
   def return_money
     refund_money(@total_money)
     reset_total_money
   end
 
+  # 購入可能なドリンクリスト
+  def purchase_possible_list
+    @all_stocks.reject! { |drink| !purchase_possible?(drink) }
+    all_stocks
+  end
+
+  # 購入
+  def purchase(drink)
+    if purchase_possible?(drink)
+      drink.reduce_stock
+      add_sales(drink)
+      puts "#{drink.name}を購入しました"
+    end
+  end
+
   private
 
-  def reset_total_money
-    @total_money = 0
-  end
+    def reset_total_money
+      @total_money = 0
+    end
 
-  def refund_money(money_value)
-    puts "#{money_value} 円払い戻し"
-  end
+    def refund_money(money_value)
+      puts "#{money_value} 円払い戻し"
+    end
+
+    def salable?(money, costs)
+      money >= costs
+    end
+
+    def add_sales(drink)
+      @sales += drink.costs
+    end
+
+    def purchase_possible?(drink)
+      salable?(@total_money, drink.costs) && drink.be_in_stock?
+    end
 
 end
 
@@ -88,3 +132,4 @@ money1000 = Money.new(1000)
 money2000 = Money.new(2000)
 money5000 = Money.new(3000)
 money10000 = Money.new(10000)
+vm.insert_money(money500)
