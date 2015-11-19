@@ -4,8 +4,12 @@ class VendingMachine
 
   def initialize
     @feeding_money = 0
-    @menu = Drink.new('コーラ', 120, 5)
     @sales = 0
+    @menus = {
+      cola: Drink.new('コーラ', 120, 5),
+      redbull: Drink.new('レッドブル', 200, 5),
+      water: Drink.new('水', 120, 5)
+    }
   end
 
   def feed(money)
@@ -19,20 +23,30 @@ class VendingMachine
     refund_money
   end
 
-  def show_menu
-    @menu.to_h
+  def menus
+    @menus.collect do |menu|
+      menu[1].to_s
+    end
   end
 
-  def getatable_cola?
-    @menu.stock > 0 && @feeding_money >= @menu.price
+  def getatable_menus
+    @menus.select do |k, v|
+      v.getatable?(@feeding_money)
+    end.collect do |menu|
+      menu[1].to_s
+    end
+  end
+
+  def cola_getatable?
+    @menus[:cola].getatable?(@feeding_money)
   end
 
   def buy_cola
-    return unless getatable_cola?
+    return unless cola_getatable?
 
-    @menu.decrease_stock
-    @feeding_money -= @menu.price
-    @sales += @menu.price
+    @menus[:cola].decrease_stock
+    @feeding_money -= @menus[:cola].price
+    @sales += @menus[:cola].price
   end
 end
 
@@ -45,11 +59,15 @@ class Drink
     @stock = stock
   end
 
-  def to_h
-    { name: @name, price: @price, stock: @stock }
+  def to_s
+    "商品名:#{@name} 値段:#{@price} 在庫数:#{@stock}"
   end
 
   def decrease_stock
     @stock -= 1 if @stock > 0
+  end
+
+  def getatable?(feeding_money)
+    @stock > 0 && feeding_money >= @price
   end
 end
