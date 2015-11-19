@@ -3,7 +3,7 @@ class VendingMachine
     @money = 0
     @available_money = [10, 50,100, 500, 1000]
     @juices = Hash.new { |h,k| h[k] = {} }
-    @juices[:cola]= {name: "コーラ", price: 120, quantity: 5}
+    @juices[0]= {name: "コーラ", price: 120, quantity: 5}
   end
 
   def insert(money)
@@ -16,7 +16,15 @@ class VendingMachine
     end
   end
 
-  def create(juice, name, price, quantity)
-    @juices[juice.to_sym] = {name: name, price: price, quantity: quantity}
+  def create(name, price, quantity)
+    @juices[@juices.length] = {name: name, price: price, quantity: quantity}
+  end
+
+  def list
+    @juices.each do |id, juice|
+      if juice[id][:price].to_i < @money && juice[id][:quantity] > 0
+        p juice[id][:name]
+      end
+    end
   end
 end
