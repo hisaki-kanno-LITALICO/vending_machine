@@ -23,6 +23,10 @@ class VendingMachine
     return display_purchace_result(drink_name)
   end
 
+  def show_all_drink_stock
+    @drink_stock.map {|drink| drink.to_s}
+  end
+
   def show_perchasable_drink_stock
     perchasable_drink_stock.map {|drink| drink.to_s}
   end
