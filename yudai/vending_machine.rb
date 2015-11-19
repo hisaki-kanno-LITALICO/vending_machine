@@ -23,13 +23,13 @@ class VendingMachine
     return display_purchace_result(drink_name)
   end
 
+  def show_perchasable_drink_stock
+    perchasable_drink_stock.map {|drink| drink.to_s}
+  end
+
   def perchasable?(drink_name)
     return false unless find_drink(drink_name)
     enough_drink_count?(drink_name) && enough_money?(drink_name)
-  end
-
-  def show_drink_stock
-    @drink_stock.map { |drink| drink.to_s }
   end
 
   def show_charged_amount
@@ -58,6 +58,10 @@ class VendingMachine
 
     def find_drink(drink_name)
       @drink_stock.find { |drink| drink.name == drink_name }
+    end
+
+    def perchasable_drink_stock
+      @drink_stock.select { |drink| perchasable?(drink.name) }
     end
 
 end
