@@ -1,5 +1,6 @@
 class VendingMachine
   MONEY_TYPES = [10, 50, 100, 500, 100, 1000]
+  attr_reader :charge_amount
 
   def initialize
     @drink_stock = [Drink.set_cola, Drink.set_redbull, Drink.set_water]
@@ -34,10 +35,6 @@ class VendingMachine
   def perchasable?(drink_name)
     return false unless find_drink(drink_name)
     enough_drink_count?(drink_name) && enough_money?(drink_name)
-  end
-
-  def show_charged_amount
-    @charged_amount
   end
 
   private
