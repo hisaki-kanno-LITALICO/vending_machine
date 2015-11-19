@@ -1,6 +1,6 @@
 class VendingMachine
   MONEY_TYPES = [10, 50, 100, 500, 100, 1000]
-  attr_reader :charge_amount
+  attr_reader :charge_amount, :salses
 
   def initialize
     @drink_stock = [Drink.set_cola, Drink.set_redbull, Drink.set_water]
