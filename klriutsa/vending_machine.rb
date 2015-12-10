@@ -1,4 +1,6 @@
 class VendingMachine
+  attr_reader :money
+
   def initialize
     @money = 0
     @available_money = [10, 50, 100, 500, 1000]
@@ -13,38 +15,36 @@ class VendingMachine
   end
 
   def return
+    money = @money
     @money = 0
+    return money
   end
 
   def buy(name)
-    @drinks.buy(name)
+    buy_drink = @drinks.buy(name)
+    if buy_drink
+      @money -= get_price(name)
+    end
+    return buy_drink
+  end
+
+  def get_price(name)
+    @drinks.get_price(name)
   end
 
   def random_buy
+    stock_drinks = self.stocks
     random_drinks = []
-    @drinks.each do |drink|
-      if drink.price <= @money
-        random_drinks << drink
+    stock_drinks.each do |stock_drink|
+      if stock_drink[:price] < @money && stock_drink[:stocks] > 0
+        random_drinks << stock_drink[:name]
       end
     end
-    randon_drink = random_drinks.sample
-    unless randon_drink.nil?
-      buy(randon_drink)
-    end
+    self.buy(random_drinks.sample) unless random_drinks.empty?
   end
 
   def stocks
     @drinks.list
-  end
-
-  def list
-    number = 0
-    @drinks.each do |drink|
-      if drink.price <= @money
-        p "#{number}:#{drink.name}"
-        number += 1
-      end
-    end
   end
 
   private
@@ -72,16 +72,36 @@ class StockDrink
     if @stock_drinks[name].nil?
       return false
     else
-      @stock_drinks.
+      @stock_drinks[name][:drink].each do |key, stock_drink|
+        if stock_drink.expire_time > Time.now
+          buy_drink = stock_drink
+          @stock_drinks[name][:drink].delete(key)
+          return buy_drink
+        end
+      end
     end
   end
 
-  # TODO 賞味期限
-  def list
-    @stock_drinks.each do |name,drink|
-      p "#{name} 値段#{drink[:price]} 在庫#{drink[:drink].count}"
+  def get_price(name)
+    if @stock_drinks[name].nil?
+      return false
+    else
+      return @stock_drinks[name][:price]
     end
-    return true
+  end
+
+  def list
+    available_drinks = []
+    @stock_drinks.each do |name,drinks|
+      count = 0
+      drinks[:drink].each do |key, drink|
+        if drink.expire_time > Time.now
+          count += 1
+        end
+      end
+      available_drinks << {name: name, price:drinks[:price], stocks: count}
+    end
+    return available_drinks
   end
 
   private
